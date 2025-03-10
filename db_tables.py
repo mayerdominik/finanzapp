@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, MetaData, Table, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, MetaData, Table, Date, Boolean
 import dotenv
 import os
 
@@ -50,6 +50,32 @@ konten = Table(
     Column("bank", String),
     Column("typ", String),
     Column("kontostand", Float),
+    Column("waehrung", String),
+    Column("iban", String),
+    Column("eigenes_konto", Boolean)  
+)
+
+kontostände = Table(
+    "kontostaende",
+    metadata,
+    Column("kontostand_id", Integer, primary_key=True, autoincrement=True),
+    Column("konto_id", Integer),
+    Column("datum", Date),
+    Column("kontostand", Float),
+    Column("waehrung", String)
+)
+
+transaktionen = Table(
+    "transaktionen",
+    metadata,
+    Column("transaktion_id", Integer, primary_key=True, autoincrement=True),
+    Column("konto_id_incoming", Integer),
+    Column("konto_id_outgoing", Integer),
+    Column("datum", Date),
+    Column("betrag", Float),
+    Column("beschreibung", String),
+    Column("kategorie", String),
+    Column("dauerauftrag", Boolean),
     Column("waehrung", String)
 )
 

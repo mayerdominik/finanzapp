@@ -8,7 +8,7 @@ st.set_page_config(page_title="Vermögen", page_icon=":money_with_wings:")
 
 
 ### Datenbank ###
-# lade bestehende konten in session state
+# lade bestehende Konten in session state
 st.session_state["df_konten"] = df_from_db("konten")
 st.session_state["existierende_konten"] = df_from_db("konten")["name"].tolist()
 
@@ -38,9 +38,11 @@ def neues_konto():
     form = st.form(key="add_account")
     name = form.text_input("Name")
     bank = form.text_input("Bank")
-    typ = form.selectbox("Typ", ["Girokonto", "Sparkonto", "Depot", "Gebundenes Kapital"])
+    typ = form.selectbox("Typ", ["Girokonto", "Sparkonto", "Depot", "Gebundenes Kapital", "Externes Konto"])
     balance = form.number_input("Kontostand")
     waehrung = form.selectbox("Währung", ["EUR", "USD", "CHF", "NOK"])
+    iban = form.text_input("IBAN")
+    eigenes_konto = form.checkbox("Eigenes Konto")
     submit = form.form_submit_button("Konto hinzufügen")
 
     if submit:
@@ -54,7 +56,9 @@ def neues_konto():
                     "bank": [bank],
                     "typ": [typ],
                     "kontostand": [balance],
-                    "waehrung": [waehrung]
+                    "waehrung": [waehrung],
+                    "iban": [iban],
+                    "eigenes_konto": [eigenes_konto]
                 })
                 df_to_db(df, "konten", safe_write=False, overwrite_db_in_conflict=True)
 
