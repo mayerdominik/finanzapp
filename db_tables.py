@@ -71,6 +71,7 @@ transaktionen = Table(
     Column("transaktion_id", Integer, primary_key=True, autoincrement=True),
     Column("konto_id_incoming", Integer),
     Column("konto_id_outgoing", Integer),
+    Column("art", String),
     Column("datum", Date),
     Column("betrag", Float),
     Column("beschreibung", String),

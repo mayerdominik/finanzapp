@@ -3,6 +3,9 @@ import pandas as pd
 from db_handler import df_to_db, df_from_db, df_to_db_and_replace
 import plotting as plotting
 
+
+# TODO: Bei Konto löschen: Lösche auch zugehörige Transaktionen und Kontostände aus DB. Geht das vllt. mit relationalen Datenbanken?
+
 ### Page Config ###
 st.set_page_config(page_title="Vermögen", page_icon=":money_with_wings:")
 
@@ -10,7 +13,7 @@ st.set_page_config(page_title="Vermögen", page_icon=":money_with_wings:")
 ### Datenbank ###
 # lade bestehende Konten in session state
 st.session_state["df_konten"] = df_from_db("konten")
-st.session_state["existierende_konten"] = df_from_db("konten")["name"].tolist()
+st.session_state["existierende_konten"] = st.session_state["df_konten"]["name"].tolist()
 
 
 ### Funktionen ###
@@ -87,22 +90,23 @@ def konto_loeschen():
 def kontostaende_anzeigen():
     # Kontoübersicht
     st.header("Kontenübersicht")
+    df_eigene_konten = st.session_state["df_konten"][st.session_state["df_konten"]["eigenes_konto"] == True]
 
-    st.subheader(f"Gesamtes Vermögen: {st.session_state['df_konten']['kontostand'].sum()} €")
-
+    st.subheader(f"Gesamtes Vermögen: {df_eigene_konten['kontostand'].sum():.2f} €")
+    
     # Pie charts
     # Vermögen nach Kontoart
-    fig = plotting.pie_chart(st.session_state["df_konten"], "typ", "kontostand", "Vermögen nach Kontoart")
+    fig = plotting.pie_chart(df_eigene_konten, "typ", "kontostand", "Vermögen nach Kontoart")
     st.plotly_chart(fig)
 
 
     # Vermögen nach Bank
-    fig = plotting.pie_chart(st.session_state["df_konten"], "bank", "kontostand", "Vermögen nach Bank")
+    fig = plotting.pie_chart(df_eigene_konten, "bank", "kontostand", "Vermögen nach Bank")
     st.plotly_chart(fig)
 
 
     # Vermögen nach Konto
-    fig = plotting.pie_chart(st.session_state["df_konten"], "name", "kontostand", "Vermögen nach Konten")
+    fig = plotting.pie_chart(df_eigene_konten, "name", "kontostand", "Vermögen nach Konten")
     st.plotly_chart(fig)
 
 ### UI ###
