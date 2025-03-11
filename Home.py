@@ -16,13 +16,22 @@ st.set_page_config(
 # Überblick aktueller Stand
 st.title("Überblick Fortschritt")
 
-st.write("vorvorletzte Session: Safe Write to db mit überschreibeoption bei doppelten primary keys, db handling aufgesetzt")
-st.write("vorletzte Session: Figma Brainstorming der Inhalte, erste Ideen für die Struktur: https://www.figma.com/board/YyKbD6NoNFZ592nX0QGzJZ/Planung-Finanzapp?node-id=0-1&t=8YojrFTIxTDvcbyn-1")
-st.write("letzte Session: Tabelle 'Konten' erstellt und Seite 'Vermögen' angefangen")
-st.write("nächste Session: Tabelle 'Transaktionen' sowie 'Kontostände' erstellen, diese untereinender und mit 'Konten' verknüpfen und Seite 'Transaktionan' anfangen")
+# st.write("vorvorletzte Session: Safe Write to db mit überschreibeoption bei doppelten primary keys, db handling aufgesetzt")
+st.write("Figma Brainstorming der Inhalte, erste Ideen für die Struktur: https://www.figma.com/board/YyKbD6NoNFZ592nX0QGzJZ/Planung-Finanzapp?node-id=0-1&t=8YojrFTIxTDvcbyn-1")
+# st.write("letzte Session: Tabelle 'Konten' erstellt und Seite 'Vermögen' angefangen")
+st.write("letzte Sessions: Tabelle 'Transaktionen' sowie 'Kontostände' erstellt, diese untereinender und mit 'Konten' verknüpfen und Seite 'Transaktionan' anfangen")
+st.write("Nächste Sessions: Erstelle Pflegemaske für sinnvollen, hierarchischen kategorien-Katalog, speichere ihn als Tabelle. Passe Transaktionen an um die tabelle zu nutzen")
 
-# Set title for Streamlit app
-st.title("Hourly Prices of iShares Core MSCI World USD (Acc) ETF in EUR")
+
+st.header("Ausblick/To-Dos")
+st.write("1. Tabelle für Kategorien-Katalog erstellen (3-4 Hierarchieebenen): (Einnahmen, Ausgaben, Verschiebungen) als oberste Ebene, unter Ausgaben Fixkosten, Variable Kosten, Freizeit, ...")
+st.write("2. Pflegemaske für Kategorien-Katalog erstellen")
+st.write("3. Transaktionen anpassen, um Kategorien-Katalog zu nutzen")
+st.write("4. Auswertung der Transaktionen nach Kategorien, geile Charts dafür bauen")
+
+
+# #Set title for Streamlit app
+# st.title("Hourly Prices of iShares Core MSCI World USD (Acc) ETF in EUR")
 
 # show_missing_data = st.toggle("Show Missing Data", value=True)
 

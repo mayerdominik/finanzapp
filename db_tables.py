@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, MetaData, Table, Date, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Float, MetaData, Table, Date, Boolean, ForeignKey
 import dotenv
 import os
 
@@ -18,29 +18,7 @@ engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT
 # Create metadata object
 metadata = MetaData()
 
-# # Define tables (sample tables here, ids should be strings)
-# table1 = Table(
-#     "stock_data",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("stock_code", String),
-#     Column("date", String),
-#     Column("open", Float),
-#     Column("high", Float),
-#     Column("low", Float),
-#     Column("close", Float),
-#     Column("volume", Float)
-# )
-
-# table2 = Table(
-#     "stock_info",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("stock_code", String),
-#     Column("name", String),
-#     Column("sector", String),
-#     Column("industry", String)
-# )
+# Konten table (Main account table)
 konten = Table(
     "konten",
     metadata,
@@ -55,22 +33,24 @@ konten = Table(
     Column("eigenes_konto", Boolean)  
 )
 
-kontostände = Table(
+# Kontostände table (Balances)
+kontostaende = Table(
     "kontostaende",
     metadata,
     Column("kontostand_id", Integer, primary_key=True, autoincrement=True),
-    Column("konto_id", Integer),
+    Column("konto_id", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=False),
     Column("datum", Date),
     Column("kontostand", Float),
     Column("waehrung", String)
 )
 
+# Transaktionen table (Transactions)
 transaktionen = Table(
     "transaktionen",
     metadata,
     Column("transaktion_id", Integer, primary_key=True, autoincrement=True),
-    Column("konto_id_incoming", Integer),
-    Column("konto_id_outgoing", Integer),
+    Column("konto_id_incoming", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=True),
+    Column("konto_id_outgoing", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=True),
     Column("art", String),
     Column("datum", Date),
     Column("betrag", Float),
