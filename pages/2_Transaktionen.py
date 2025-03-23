@@ -6,6 +6,7 @@ import datetime
 ### Page Config ###
 st.set_page_config(page_title="Transaktionen", page_icon=":arrows_clockwise:")
 
+st.warning("Bugfix: Transaktion hinzufügen funktioniert nicht(Wird nicht in Datenbank gespeichert)")
 
 ### Datenbank ###
 # lade bestehende Konten in session state
@@ -197,10 +198,10 @@ def neue_transaktion():
                 })
                 df_to_db(df, "konten", safe_write=False, overwrite_db_in_conflict=True)
 
-            st.session_state["df_konten"] = df_from_db("konten")
+            
 
             # speichere Transaktion in Datenbank
-            df = pd.DataFrame({
+            df_trans = pd.DataFrame({
                 "konto_id_incoming": [konto_eingehend],  # Store custom input if entered
                 "konto_id_outgoing": [konto_ausgehend],
                 "art": [transaktions_art],
@@ -211,7 +212,8 @@ def neue_transaktion():
                 "dauerauftrag": [False],
                 "waehrung": [waehrung]
             })
-            df_to_db(df, "transaktionen", safe_write=False, overwrite_db_in_conflict=True)
+
+            df_to_db(df_trans, "transaktionen", safe_write=False, overwrite_db_in_conflict=True)
 
             # ändere Kontostände in Datenbank
             st.session_state["df_konten"].loc[st.session_state["df_konten"]["konto_id"] == konto_eingehend, "kontostand"] += betrag
@@ -227,9 +229,13 @@ def neue_transaktion():
                 "waehrung": [waehrung, waehrung]
             })
             df_to_db(df, "kontostaende", safe_write=False, overwrite_db_in_conflict=True)
+
+            # Update session state
+            st.session_state["df_transaktionen"] = df_from_db("transaktionen")
+            st.session_state["df_konten"] = df_from_db("konten")
+            st.session_state["df_kontostaende"] = df_from_db("kontostaende")
                 
             st.success("Transaktion erfolgreich hinzugefügt")
-            st.session_state["df_transaktionen"] = df_from_db("transaktionen")
 
         except Exception as e:
             st.error(f"Fehler beim Hinzufügen der Transaktion: {e}")
