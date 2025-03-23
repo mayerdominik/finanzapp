@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from db_handler import df_to_db, df_from_db, df_to_db_and_replace
+from db_handler import df_to_db, df_from_db, df_to_db_and_replace, remove_rows_where
 import plotting as plotting
 
 
@@ -39,32 +39,34 @@ def add_kategorie(name, parent_id=None):
     # Kategorien neu laden
     st.session_state["df_kategorien"] = df_from_db("kategorien")
 
-# Input neue Kategorie
-def input_kategorie():
-    # selects mit allen Kategorien
+# Funktion, um Kategorie zu löschen
+def delete_kategorie(kategorie_id):
+    # Kategorie und alle Unterkategorien löschen
     kategorien = st.session_state["df_kategorien"]
-    level_0 = kategorien[kategorien["parent_id"].isnull()]
-    level_0_dict = dict(zip(level_0["kategorie_id"], level_0["name"]))
-    level_0_select = st.selectbox("Art", level_0_dict.keys(), format_func=lambda x: level_0_dict[x])
-    
-    level_1 = kategorien[kategorien["parent_id"] == level_0_select]
-    level_1_dict={level_0_select: "- Neue Kategorie -"}
-    level_1_dict.update(dict(zip(level_1["kategorie_id"], level_1["name"])))
-    level_1_select = st.selectbox("Kategorie", level_1_dict.keys(), format_func=lambda x: level_1_dict[x], index=0)
+    kategorie_ids = [kategorie_id]
+    for i in range(5):  # Maximal 5 Level
+        subcategories = kategorien[kategorien["parent_id"].isin(kategorie_ids)]
+        if subcategories.empty:
+            break
+        # Add the subcategories to the list of categories to delete
+        kategorie_ids += subcategories["kategorie_id"].tolist()
 
-    parent_id = level_1_select
+    # Delete the categories from the database
+    remove_rows_where("kategorien", "kategorie_id", kategorie_ids)
+    # Kategorien neu laden
+    st.session_state["df_kategorien"] = df_from_db("kategorien")
 
-    if level_1_select != level_0_select:
-        level_2 = kategorien[kategorien["parent_id"] == level_1_select]
-        level_2_dict={level_1_select: "- Neue Unterkategorie -"}
-        level_2_dict.update(dict(zip(level_2["kategorie_id"], level_2["name"])))
-        level_2_select = st.selectbox("Unterkategorie", level_2_dict.keys(), format_func=lambda x: level_2_dict[x], index=0)
-        parent_id = level_2_select
-
-    # Input für neue Kategorie
-    new_kategorie = st.text_input("Neue Kategorie")
-    if st.button("Hinzufügen"):
-        add_kategorie(new_kategorie, parent_id)
+# dialog zum löschen eines kontos
+@st.dialog("Kategorie löschen?")
+def delete(kategorie_id):
+    kategorie_name = st.session_state["df_kategorien"][st.session_state["df_kategorien"]["kategorie_id"] == kategorie_id]["name"].values[0]
+    st.write(f":warning: Bist du sicher, dass du die Kategorie {kategorie_name} löschen willst? Dadurch werden alle Unterkategorien ebenfalls gelöscht. :warning:")
+    if st.button("Bestätigen"):
+        try:
+            delete_kategorie(kategorie_id)
+            st.success("Kategorie erfolgreich gelöscht")
+        except Exception as e:
+            st.error(f"Fehler beim Löschen der Kategorie: {e}")
 
 # Recursive function to generate selectboxes up to 5 levels
 def generate_category_select(kategorien, parent_id=None, level=0, max_level=5):
@@ -81,7 +83,7 @@ def generate_category_select(kategorien, parent_id=None, level=0, max_level=5):
         return parent_id
 
     # Prepare options for the current level
-    category_dict = {parent_id: "- Neue Kategorie -"}  # Default option for "New Category"
+    category_dict = {parent_id: "- Keine Auswahl -"}  # Default option for "New Category"
     category_dict.update(dict(zip(filtered_categories["kategorie_id"], filtered_categories["name"])))
 
     # Create the selectbox for the current level
@@ -101,22 +103,21 @@ st.title("Kategorienübersicht")
 ## Kategorienübersicht
 st.write("Hierarchische Darstellung der Kategorien:")
 kategorien = st.session_state["df_kategorien"]
+print("og",kategorien)
 display_tree(kategorien)
 
 ### Neue Kategorie hinzufügen
-st.header("Neue Kategorie hinzufügen")
-# hierarchische Auswahl der Elternkategorie
-# input_kategorie()
-
-st.divider()
+st.header("Kategorie hinzufügen / löschen")
 # Start the category selection process (up to 5 levels)
 cols = st.columns(2)
 with cols[0]:
-    st.write("Unter welcher Oberkategorie soll die neue Kategorie sein?")
+    st.write("Auswahl bestehender Kategorien:")
 with cols[1]:
-    st.write("Wie soll die neue Kategorie heißen?")
+    st.write("Kategorie unter ausgewählter Kategorie hinzufügen:")
 cols = st.columns(2)
 with cols[0]:
+    if kategorien.empty:
+        st.warning("Keine Kategorien vorhanden, bitte füge eine hinzu :point_right:")
     selected_category = generate_category_select(kategorien, parent_id=None, level=0, max_level=5)
 
 # Input for new category
@@ -131,3 +132,8 @@ with cols[1]:
             st.success(f"Die Kategorie '{new_kategorie}' wurde erfolgreich hinzugefügt.")
         else:
             st.warning("Bitte geben Sie einen Namen für die neue Kategorie an.")
+    
+    st.write("Ausgewählte Kategorie löschen:")
+    if st.button("Löschen"):
+        delete(kategorie_id=selected_category)
+        st.success(f"Die Kategorie wurde erfolgreich gelöscht.")

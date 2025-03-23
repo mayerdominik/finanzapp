@@ -24,10 +24,9 @@ st.write("Nächste Sessions: Erstelle Pflegemaske für sinnvollen, hierarchische
 
 
 st.header("Ausblick/To-Dos")
-st.write("1. Tabelle für Kategorien-Katalog erstellen (3-4 Hierarchieebenen): (Einnahmen, Ausgaben, Verschiebungen) als oberste Ebene, unter Ausgaben Fixkosten, Variable Kosten, Freizeit, ...")
-st.write("2. Pflegemaske für Kategorien-Katalog erstellen")
-st.write("3. Transaktionen anpassen, um Kategorien-Katalog zu nutzen")
-st.write("4. Auswertung der Transaktionen nach Kategorien, geile Charts dafür bauen")
+st.write("1. Transaktionen anpassen, um Kategorien-Katalog zu nutzen")
+st.write("2. Auswertung der Transaktionen nach Kategorien, geile Charts dafür mit zeitlichem Verlauf bauen")
+st.write("3. Kontostände im zeitlichen Verlauf darstellen")
 
 
 # #Set title for Streamlit app

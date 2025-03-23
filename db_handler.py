@@ -108,7 +108,6 @@ def df_to_db(df, table_name, safe_write=False, overwrite_db_in_conflict=False):
             data_dicts = df.to_dict('records')
             # Add rows to the table
             session.execute(table.insert(), data_dicts)
-
             
             # Commit the transaction
             session.commit()
@@ -153,6 +152,22 @@ def df_from_db(table_name):
     query = table.select()  # Select all columns from the table
     df = pd.read_sql(query, engine)  # Use pandas to read the SQL result directly into a DataFrame
     return df
+
+def remove_rows_where(table_name, column_name, values):
+    '''Removes rows from a table where a column matches a list of values'''
+    try:
+        metadata = MetaData()
+        table = Table(table_name, metadata, autoload_with=engine)
+        with Session(engine) as session:
+            # Build the where clause
+            where_clause = table.c[column_name].in_(values)
+            # Execute the delete statement
+            session.execute(table.delete().where(where_clause))
+            # Commit the transaction
+            session.commit()
+            print(f"Rows successfully deleted from table {table_name} where column {column_name} matches values {values}")
+    except Exception as e:
+        print(f"Error deleting rows from table {table_name}; {e}")
 
 # if __name__ == "__main__":
 #     # Test the connection

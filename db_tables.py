@@ -38,7 +38,7 @@ kontostaende = Table(
     "kontostaende",
     metadata,
     Column("kontostand_id", Integer, primary_key=True, autoincrement=True),
-    Column("konto_id", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=False),
+    Column("konto_id", Integer),
     Column("datum", Date),
     Column("kontostand", Float),
     Column("waehrung", String)
@@ -49,8 +49,8 @@ transaktionen = Table(
     "transaktionen",
     metadata,
     Column("transaktion_id", Integer, primary_key=True, autoincrement=True),
-    Column("konto_id_incoming", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=True),
-    Column("konto_id_outgoing", Integer, ForeignKey("konten.konto_id", ondelete="CASCADE"), nullable=True),
+    Column("konto_id_incoming", Integer),
+    Column("konto_id_outgoing", Integer),
     Column("art", String),
     Column("datum", Date),
     Column("betrag", Float),
@@ -58,6 +58,15 @@ transaktionen = Table(
     Column("kategorie", String),
     Column("dauerauftrag", Boolean),
     Column("waehrung", String)
+)
+
+# Transaktionen table (Transactions)
+kategorien = Table(
+    "kategorien",
+    metadata,
+    Column("kategorie_id", Integer, primary_key=True, autoincrement=True),
+    Column("name", String),
+    Column("parent_id", Integer)
 )
 
 def create_all_tables():
